@@ -12,7 +12,7 @@
             --bg-color: #f1f5f9;
             --text-main: #1e293b;
             --border-color: #cbd5e1;
-            --lunch-color: #fef08a; /* 점심시간 강조 색상 (연한 노랑) */
+            --lunch-color: #fef08a;
         }
 
         body {
@@ -20,7 +20,7 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding: 15px; /* 모바일을 위해 패딩 약간 축소 */
+            padding: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -37,9 +37,8 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
-        /* 날짜가 들어갈 큰 제목 스타일 */
         .header h1 {
-            font-size: 1.8rem; /* 모바일에 맞춰 약간 축소 */
+            font-size: 1.8rem;
             color: var(--primary-color);
             margin: 0 0 5px 0;
             font-weight: 800;
@@ -48,31 +47,58 @@
         .header p {
             font-size: 0.9rem;
             color: #64748b;
-            margin: 0;
+            margin: 0 0 15px 0;
+        }
+
+        /* 컨트롤 영역 (반 선택, 검색) */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .controls select, .controls input {
+            padding: 8px 12px;
+            font-size: 0.95rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            outline: none;
+            font-family: 'Pretendard', sans-serif;
+        }
+
+        .controls input:focus, .controls select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px var(--primary-light);
         }
 
         .table-container {
             width: 100%;
             max-width: 100%;
-            overflow-x: auto; /* 좌우 스크롤 허용 */
+            overflow-x: auto;
             background: #ffffff;
             border-radius: 12px;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
             border: 1px solid var(--border-color);
-            -webkit-overflow-scrolling: touch; /* 모바일 부드러운 스크롤 */
+            -webkit-overflow-scrolling: touch;
         }
 
         table {
             border-collapse: collapse;
             width: 100%;
-            min-width: 1000px; /* 모바일 가로 스크롤 최소 너비 */
+            min-width: 1000px;
             table-layout: fixed;
             font-size: 0.85rem;
         }
 
-        /* 교시 열의 너비 고정 */
+        /* '내 반만 보기' 시 테이블 레이아웃 자동 조절 방지 */
+        table.single-class-view {
+            min-width: unset;
+        }
+
         table th:first-child, table td.time-cell {
-            width: 65px; /* 너비 약간 축소 */
+            width: 65px;
         }
 
         th, td {
@@ -85,18 +111,9 @@
             word-break: keep-all;
         }
 
-        th {
-            font-weight: 600;
-        }
+        th { font-weight: 600; }
+        th.grade-header { font-size: 1.05rem; font-weight: 800; padding: 8px 0; }
 
-        /* 학년 표시용 큰 헤더 (병합된 셀) */
-        th.grade-header {
-            font-size: 1.05rem;
-            font-weight: 800;
-            padding: 8px 0;
-        }
-
-        /* 첫 번째 열(교시) 고정 설정 */
         td.time-cell, th.time-cell-header {
             font-weight: 700;
             position: sticky;
@@ -105,48 +122,69 @@
             border-right: 2px solid var(--primary-color);
         }
 
-        /* 과목명-선생님 셀 병합처럼 보이게 하는 트릭 */
         td.time-cell-top { border-bottom: none !important; }
         td.time-cell-bottom { border-top: none !important; }
 
-        /* 행 높이 고정 (과목 셀) */
         td.subject-cell {
             font-weight: 700;
             border-bottom: none !important; 
             padding-bottom: 2px;
             color: #1e293b;
             height: 32px; 
+            transition: background-color 0.3s;
         }
 
-        /* 행 높이 고정 (선생님 셀) */
         td.teacher-cell {
             font-size: 0.7rem;
             color: #64748b; 
             border-top: none !important; 
             padding-top: 2px;
             height: 18px; 
+            transition: background-color 0.3s;
         }
 
-        /* 점심시간 행 전체 강조 스타일 */
         .lunch-row td {
             background-color: var(--lunch-color) !important;
             font-weight: 800;
-            color: #854d0e; /* 진한 노란색/갈색 계열 글씨 */
-            height: 40px; /* 점심시간 행 높이 */
+            color: #854d0e;
+            height: 40px;
             border-top: 2px solid #eab308;
             border-bottom: 2px solid #eab308;
             letter-spacing: 2px;
         }
         
-        /* 점심시간 교시 칸 스타일 덮어쓰기 */
         .lunch-row td.time-cell {
-            background-color: #fde047 !important; /* 약간 더 진한 노랑 */
+            background-color: #fde047 !important;
             border-right: 2px solid var(--primary-color);
         }
 
         tr:hover td.subject-cell:not(.lunch-row td), tr:hover td.teacher-cell:not(.lunch-row td) {
             filter: brightness(0.95);
         }
+
+        /* 검색 하이라이트 스타일 */
+        .highlight-teacher {
+            background-color: #fef08a !important; /* 형광 노랑 */
+            color: #b45309 !important;
+            font-weight: 800 !important;
+            border-radius: 4px;
+        }
+
+        /* 현재 교시 깜빡임 효과 */
+        @keyframes pulseBorder {
+            0% { box-shadow: inset 0 0 0 2px transparent; }
+            50% { box-shadow: inset 0 0 0 3px #3b82f6; }
+            100% { box-shadow: inset 0 0 0 2px transparent; }
+        }
+
+        .current-period-row td {
+            animation: pulseBorder 2s infinite;
+            position: relative;
+            z-index: 1; /* 테두리가 다른 셀에 가려지지 않게 */
+        }
+        
+        /* 숨김 처리용 클래스 */
+        .hidden-col { display: none !important; }
 
         .loader-container { padding: 50px; text-align: center; }
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 16px auto; }
@@ -155,6 +193,7 @@
         @media (max-width: 600px) {
             .header h1 { font-size: 1.5rem; }
             .header { padding: 15px 0; margin-bottom: 15px; }
+            .controls { flex-direction: column; padding: 0 15px; }
         }
     </style>
 </head>
@@ -162,7 +201,29 @@
 
     <div class="header">
         <h1 id="main-title">📅 실시간 오늘의 시간표</h1>
-        <p>점심시간 강조 및 모바일 뷰 최적화</p>
+        <p>자동 새로고침(5분) 적용 중...</p>
+        
+        <!-- 검색 및 반 선택 컨트롤 -->
+        <div class="controls">
+            <select id="class-selector" onchange="filterClass()">
+                <option value="all">전체 보기</option>
+                <option value="1">1학년 1반</option>
+                <option value="2">1학년 2반</option>
+                <option value="3">1학년 3반</option>
+                <option value="4">1학년 4반</option>
+                <option value="5">2학년 1반</option>
+                <option value="6">2학년 2반</option>
+                <option value="7">2학년 3반</option>
+                <option value="8">2학년 4반</option>
+                <option value="9">2학년 5반</option>
+                <option value="10">3학년 1반</option>
+                <option value="11">3학년 2반</option>
+                <option value="12">3학년 3반</option>
+                <option value="13">3학년 4반</option>
+                <option value="14">3학년 5반</option>
+            </select>
+            <input type="text" id="teacher-search" placeholder="선생님 이름 검색 (예: 임승언)" onkeyup="searchTeacher()">
+        </div>
     </div>
 
     <div class="table-container">
@@ -183,38 +244,31 @@
     <script>
         const sheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRri5Q0YRwIkcGrjMpqeyrZPQJBJTiQ9F9YKMJxrvYk_P2Q9LZW7sP61nQMtXse5-S85zFbXBOz9f_/pub?gid=1583258371&single=true&output=csv";
 
-        // 페이지 로드 시 오늘 날짜 형식으로 제목 변경
+        // --- 기능 1 & 3: 데이터 캐싱을 위한 변수 ---
+        let globalTimetableData = [];
+
         function setTodayTitle() {
             const today = new Date();
             const month = today.getMonth() + 1;
             const date = today.getDate();
             const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
             const dayName = dayNames[today.getDay()];
-            
             document.getElementById('main-title').innerText = `📅 실시간 ${month}월 ${date}일(${dayName}) 시간표`;
         }
 
-        // 학년별 및 교시별(홀/짝) 교차 색상 반환
         function getGradeColor(colIndex, periodNum) {
             const isEvenPeriod = periodNum % 2 === 0;
-
-            if (colIndex >= 1 && colIndex <= 4) {
-                return isEvenPeriod ? "#fef08a" : "#fef9c3"; // 1학년 노랑
-            }
-            if (colIndex >= 5 && colIndex <= 9) {
-                return isEvenPeriod ? "#bbf7d0" : "#dcfce3"; // 2학년 초록
-            }
-            if (colIndex >= 10 && colIndex <= 14) {
-                return isEvenPeriod ? "#bfdbfe" : "#dbeafe"; // 3학년 파랑
-            }
+            if (colIndex >= 1 && colIndex <= 4) return isEvenPeriod ? "#fef08a" : "#fef9c3";
+            if (colIndex >= 5 && colIndex <= 9) return isEvenPeriod ? "#bbf7d0" : "#dcfce3";
+            if (colIndex >= 10 && colIndex <= 14) return isEvenPeriod ? "#bfdbfe" : "#dbeafe";
             return "#ffffff";
         }
 
-        // 1열(교시) 전용 교차 색상
         function getPeriodColor(periodNum) {
-            return periodNum % 2 !== 0 ? "#ffffff" : "#f1f5f9"; // 홀수 흰색, 짝수 연한 회색 교차
+            return periodNum % 2 !== 0 ? "#ffffff" : "#f1f5f9";
         }
 
+        // --- 데이터 로드 및 렌더링 ---
         function loadTimetable() {
             setTodayTitle();
 
@@ -223,116 +277,14 @@
                 header: false,
                 skipEmptyLines: 'greedy',
                 complete: function(results) {
-                    const data = results.data;
-                    const thead = document.getElementById('timetable-head');
-                    const tbody = document.getElementById('timetable-body');
-                    
-                    let headHtml = "";
-                    let bodyHtml = "";
-                    let currentPeriod = 1; // 기본 1교시로 시작
-
-                    data.forEach((row, rowIndex) => {
-                        let slicedRow = row.slice(0, 15); 
-
-                        // 첫 번째 줄(Row 0): 데이터 무시
-                        if (rowIndex === 0) return;
-
-                        // 두 번째 줄(Row 1): '1학년', '2학년' 등 헤더 중앙 정렬
-                        if (rowIndex === 1) {
-                            headHtml += "<tr>";
-                            headHtml += `<th rowspan="2" class="time-cell-header" style="background-color: var(--primary-color); color: white;">교시</th>`;
-                            
-                            let currentHeader = "";
-                            let colspanCount = 0;
-                            let startIndex = 1;
-
-                            for (let i = 1; i < 15; i++) {
-                                let cell = slicedRow[i] ? slicedRow[i].trim() : "";
-                                
-                                if (cell !== "") {
-                                    if (currentHeader !== "") {
-                                        headHtml += `<th class="grade-header" colspan="${colspanCount}" style="background-color: ${getGradeColor(startIndex, 1)}; color: #1e293b;">${currentHeader}</th>`;
-                                    }
-                                    currentHeader = cell;
-                                    colspanCount = 1;
-                                    startIndex = i;
-                                } else {
-                                    if (currentHeader !== "") colspanCount++;
-                                }
-                            }
-                            if (currentHeader !== "") {
-                                headHtml += `<th class="grade-header" colspan="${colspanCount}" style="background-color: ${getGradeColor(startIndex, 1)}; color: #1e293b;">${currentHeader}</th>`;
-                            }
-                            headHtml += "</tr>";
-                            return;
-                        }
-
-                        // 세 번째 줄(Row 2): '1반', '2반' 등 반 표시
-                        if (rowIndex === 2) {
-                            headHtml += "<tr>";
-                            for (let i = 1; i < 15; i++) {
-                                let cell = slicedRow[i] ? slicedRow[i].replace(/\n/g, "<br>") : "";
-                                headHtml += `<th style="background-color: ${getGradeColor(i, 1)}; color: #1e293b;">${cell}</th>`;
-                            }
-                            headHtml += "</tr>";
-                            return;
-                        }
-
-                        // 본문 데이터 (Row 3 이상)
-                        let isTeacherRow = slicedRow[0] === undefined || slicedRow[0].trim() === "";
-                        let isLunchRow = false;
-
-                        if (!isTeacherRow && slicedRow[0]) {
-                            if (slicedRow[0].includes("점심")) {
-                                isLunchRow = true;
-                                currentPeriod = 0; // 점심시간은 교차색상 계산에서 제외하기 위해 임시로 0 처리
-                            } else {
-                                let match = slicedRow[0].match(/\d+/);
-                                if (match) currentPeriod = parseInt(match[0], 10);
-                            }
-                        }
-
-                        // 점심시간 행 렌더링 (병합 처리)
-                        if (isLunchRow) {
-                             bodyHtml += `<tr class="lunch-row">`;
-                             bodyHtml += `<td class="time-cell">점심</td>`;
-                             // 점심시간 텍스트 추출 (예: "점심 12:20-13:20")
-                             let lunchText = slicedRow[0].replace(/\n/g, " "); 
-                             bodyHtml += `<td colspan="14">${lunchText}</td>`;
-                             bodyHtml += `</tr>`;
-                             return; // 다음 행으로 넘어감
-                        }
-                        
-                        // 선생님 행인데 바로 위가 점심시간이었다면 건너뜀 (빈 행 방지)
-                        if(isTeacherRow && currentPeriod === 0) return;
-
-                        let pColor = getPeriodColor(currentPeriod);
-
-                        bodyHtml += "<tr>";
-                        slicedRow.forEach((cell, cellIndex) => {
-                            let formattedCell = cell ? cell.replace(/\n/g, "<br>") : "";
-                            let gColor = getGradeColor(cellIndex, currentPeriod);
-
-                            if (cellIndex === 0) {
-                                if (isTeacherRow) {
-                                    bodyHtml += `<td class="time-cell time-cell-bottom" style="background-color: ${pColor}">${formattedCell}</td>`;
-                                } else {
-                                    bodyHtml += `<td class="time-cell time-cell-top" style="background-color: ${pColor}">${formattedCell}</td>`;
-                                }
-                            } else {
-                                if (isTeacherRow) {
-                                    bodyHtml += `<td class="teacher-cell" style="background-color: ${gColor}">${formattedCell}</td>`;
-                                } else {
-                                    bodyHtml += `<td class="subject-cell" style="background-color: ${gColor}">${formattedCell}</td>`;
-                                }
-                            }
-                        });
-                        bodyHtml += "</tr>";
-                    });
-
-                    thead.innerHTML = headHtml;
-                    tbody.innerHTML = bodyHtml;
+                    globalTimetableData = results.data;
+                    renderTable();
                     document.getElementById('loader').style.display = 'none';
+                    
+                    // 초기 로딩 후 검색 및 필터 상태 유지
+                    filterClass();
+                    searchTeacher();
+                    checkCurrentPeriod();
                 },
                 error: function(err) {
                     document.getElementById('loader').innerHTML = `<div style="color:red; font-weight:bold;">데이터를 불러오지 못했습니다.</div>`;
@@ -340,7 +292,235 @@
             });
         }
 
-        document.addEventListener('DOMContentLoaded', loadTimetable);
+        function renderTable() {
+            if(!globalTimetableData.length) return;
+            const thead = document.getElementById('timetable-head');
+            const tbody = document.getElementById('timetable-body');
+            
+            let headHtml = "";
+            let bodyHtml = "";
+            let currentPeriod = 1;
+
+            globalTimetableData.forEach((row, rowIndex) => {
+                let slicedRow = row.slice(0, 15); 
+                if (rowIndex === 0) return;
+
+                // 헤더 생성 로직
+                if (rowIndex === 1) {
+                    headHtml += "<tr>";
+                    headHtml += `<th rowspan="2" class="time-cell-header" style="background-color: var(--primary-color); color: white;">교시</th>`;
+                    let currentHeader = "";
+                    let colspanCount = 0;
+                    let startIndex = 1;
+                    for (let i = 1; i < 15; i++) {
+                        let cell = slicedRow[i] ? slicedRow[i].trim() : "";
+                        if (cell !== "") {
+                            if (currentHeader !== "") {
+                                headHtml += `<th class="grade-header col-${startIndex}" colspan="${colspanCount}" style="background-color: ${getGradeColor(startIndex, 1)}; color: #1e293b;" data-start="${startIndex}" data-span="${colspanCount}">${currentHeader}</th>`;
+                            }
+                            currentHeader = cell;
+                            colspanCount = 1;
+                            startIndex = i;
+                        } else {
+                            if (currentHeader !== "") colspanCount++;
+                        }
+                    }
+                    if (currentHeader !== "") {
+                        headHtml += `<th class="grade-header col-${startIndex}" colspan="${colspanCount}" style="background-color: ${getGradeColor(startIndex, 1)}; color: #1e293b;" data-start="${startIndex}" data-span="${colspanCount}">${currentHeader}</th>`;
+                    }
+                    headHtml += "</tr>";
+                    return;
+                }
+
+                if (rowIndex === 2) {
+                    headHtml += "<tr>";
+                    for (let i = 1; i < 15; i++) {
+                        let cell = slicedRow[i] ? slicedRow[i].replace(/\n/g, "<br>") : "";
+                        headHtml += `<th class="col-${i}" style="background-color: ${getGradeColor(i, 1)}; color: #1e293b;">${cell}</th>`;
+                    }
+                    headHtml += "</tr>";
+                    return;
+                }
+
+                // 본문 렌더링 로직
+                let isTeacherRow = slicedRow[0] === undefined || slicedRow[0].trim() === "";
+                let isLunchRow = false;
+
+                if (!isTeacherRow && slicedRow[0]) {
+                    if (slicedRow[0].includes("점심")) {
+                        isLunchRow = true;
+                        currentPeriod = 0;
+                    } else {
+                        let match = slicedRow[0].match(/\d+/);
+                        if (match) currentPeriod = parseInt(match[0], 10);
+                    }
+                }
+
+                if (isLunchRow) {
+                     bodyHtml += `<tr class="lunch-row period-0">`;
+                     bodyHtml += `<td class="time-cell">점심</td>`;
+                     let lunchText = slicedRow[0].replace(/\n/g, " "); 
+                     bodyHtml += `<td colspan="14" class="lunch-content">${lunchText}</td>`;
+                     bodyHtml += `</tr>`;
+                     return;
+                }
+                
+                if(isTeacherRow && currentPeriod === 0) return;
+
+                let pColor = getPeriodColor(currentPeriod);
+                
+                // data-period 속성을 tr에 부여하여 나중에 하이라이트할 수 있게 함
+                bodyHtml += `<tr class="period-${currentPeriod}">`;
+                slicedRow.forEach((cell, cellIndex) => {
+                    let formattedCell = cell ? cell.replace(/\n/g, "<br>") : "";
+                    let gColor = getGradeColor(cellIndex, currentPeriod);
+
+                    if (cellIndex === 0) {
+                        if (isTeacherRow) {
+                            bodyHtml += `<td class="time-cell time-cell-bottom" style="background-color: ${pColor}">${formattedCell}</td>`;
+                        } else {
+                            bodyHtml += `<td class="time-cell time-cell-top" style="background-color: ${pColor}">${formattedCell}</td>`;
+                        }
+                    } else {
+                        // teacher 검색을 위해 클래스 추가
+                        if (isTeacherRow) {
+                            bodyHtml += `<td class="teacher-cell col-${cellIndex}" style="background-color: ${gColor}">${formattedCell}</td>`;
+                        } else {
+                            // 같은 열의 선생님 이름과 연결짓기 위해 구조화 (검색 시 색상 변경용)
+                            bodyHtml += `<td class="subject-cell col-${cellIndex}" style="background-color: ${gColor}">${formattedCell}</td>`;
+                        }
+                    }
+                });
+                bodyHtml += "</tr>";
+            });
+
+            thead.innerHTML = headHtml;
+            tbody.innerHTML = bodyHtml;
+        }
+
+        // --- 기능 1: 반 선택 필터 ---
+        function filterClass() {
+            const selectedVal = document.getElementById('class-selector').value;
+            const table = document.getElementById('timetable');
+            
+            // 모든 컬럼 숨김 해제
+            const allCells = document.querySelectorAll('#timetable th, #timetable td');
+            allCells.forEach(cell => cell.classList.remove('hidden-col'));
+            table.classList.remove('single-class-view');
+
+            if (selectedVal !== "all") {
+                const colIdx = parseInt(selectedVal);
+                table.classList.add('single-class-view'); // 전체 너비 고정 해제
+
+                // 1. 헤더 (Row 1 - 학년) 조정
+                const gradeHeaders = document.querySelectorAll('.grade-header');
+                gradeHeaders.forEach(th => {
+                    const start = parseInt(th.getAttribute('data-start'));
+                    const span = parseInt(th.getAttribute('data-span'));
+                    if (colIdx >= start && colIdx < start + span) {
+                        th.setAttribute('colspan', 1); // 선택된 반이 포함된 학년 헤더의 colspan을 1로
+                    } else {
+                        th.classList.add('hidden-col'); // 나머지 학년 헤더 숨김
+                    }
+                });
+
+                // 2. 나머지 셀 숨김 처리 (선택된 열, 교시 열, 점심시간 제외)
+                allCells.forEach(cell => {
+                    // 점심시간 행은 colspan을 조정
+                    if(cell.classList.contains('lunch-content')) {
+                        cell.setAttribute('colspan', 1);
+                        return;
+                    }
+                    // 교시(time-cell)나 헤더 교시는 살림
+                    if(cell.classList.contains('time-cell') || cell.classList.contains('time-cell-header') || cell.classList.contains('grade-header')) return;
+                    
+                    // 자신의 열 인덱스가 선택된 값이 아니면 숨김
+                    let match = cell.className.match(/col-(\d+)/);
+                    if (match && parseInt(match[1]) !== colIdx) {
+                        cell.classList.add('hidden-col');
+                    }
+                });
+            } else {
+                // 전체 보기 복구 시 colspan 원복
+                 const gradeHeaders = document.querySelectorAll('.grade-header');
+                 gradeHeaders.forEach(th => th.setAttribute('colspan', th.getAttribute('data-span')));
+                 const lunchContent = document.querySelector('.lunch-content');
+                 if(lunchContent) lunchContent.setAttribute('colspan', 14);
+            }
+        }
+
+        // --- 기능 3: 선생님 이름 검색 ---
+        function searchTeacher() {
+            const keyword = document.getElementById('teacher-search').value.trim();
+            const teacherCells = document.querySelectorAll('.teacher-cell');
+            const subjectCells = document.querySelectorAll('.subject-cell');
+
+            // 초기화
+            teacherCells.forEach(cell => cell.classList.remove('highlight-teacher'));
+            subjectCells.forEach(cell => cell.classList.remove('highlight-teacher'));
+
+            if (keyword === "") return;
+
+            teacherCells.forEach(tCell => {
+                if (tCell.innerText.includes(keyword)) {
+                    tCell.classList.add('highlight-teacher');
+                    
+                    // 바로 위 행의 같은 열 인덱스를 가진 과목 셀도 하이라이트
+                    let colMatch = tCell.className.match(/col-(\d+)/);
+                    if(colMatch) {
+                        let colIdx = colMatch[1];
+                        // tCell의 부모(tr)의 이전 형제(tr)에서 해당 열 찾기
+                        let prevRow = tCell.parentElement.previousElementSibling;
+                        if(prevRow) {
+                            let sCell = prevRow.querySelector(`.col-${colIdx}`);
+                            if(sCell) sCell.classList.add('highlight-teacher');
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- 기능 2: 현재 교시 실시간 깜빡임 ---
+        function checkCurrentPeriod() {
+            const now = new Date();
+            const h = now.getHours();
+            const m = now.getMinutes();
+            const time = h * 100 + m; // 예: 09:30 -> 930
+            
+            // 초기화
+            const allRows = document.querySelectorAll('#timetable-body tr');
+            allRows.forEach(tr => tr.classList.remove('current-period-row'));
+
+            let currentPeriod = -1;
+            
+            // 학교 시간표 기준 (임의로 설정 - 필요시 수정)
+            if (time >= 850 && time < 935) currentPeriod = 1;
+            else if (time >= 945 && time < 1030) currentPeriod = 2;
+            else if (time >= 1040 && time < 1125) currentPeriod = 3;
+            else if (time >= 1135 && time < 1220) currentPeriod = 4;
+            else if (time >= 1220 && time < 1320) currentPeriod = 0; // 점심
+            else if (time >= 1320 && time < 1405) currentPeriod = 5;
+            else if (time >= 1415 && time < 1500) currentPeriod = 6;
+            else if (time >= 1510 && time < 1555) currentPeriod = 7;
+
+            if (currentPeriod !== -1) {
+                // 해당 교시의 행들을 찾아 클래스 추가 (과목행, 선생님행 모두)
+                const targetRows = document.querySelectorAll(`.period-${currentPeriod}`);
+                targetRows.forEach(tr => tr.classList.add('current-period-row'));
+            }
+        }
+
+        // 페이지 로드 시 실행
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTimetable();
+            
+            // --- 기능 4: 5분(300000ms) 주기 자동 새로고침 (데이터만 다시 그림) ---
+            setInterval(loadTimetable, 300000);
+            
+            // 기능 2: 1분마다 현재 시간 체크하여 하이라이트 갱신
+            setInterval(checkCurrentPeriod, 60000);
+        });
+
     </script>
 </body>
 </html>
