@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3월 3일 시간표</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            text-align: center;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 { color: #333; }
+        .table-container {
+            overflow-x: auto; /* 화면이 좁을 때 가로 스크롤 생성 */
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            white-space: nowrap; /* 글자 줄바꿈 방지 */
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        .loading { margin-top: 50px; font-size: 18px; color: #666; }
+    </style>
+</head>
+<body>
+
+    <h1>📅 3월 3일 시간표</h1>
+    
+    <div id="loading" class="loading">실시간 시간표 데이터를 불러오는 중입니다...</div>
+    
+    <div class="table-container">
+        <table id="timetable">
+            </table>
+    </div>
+
+    <script>
+        // ★ 여기에 1단계에서 복사한 구글 스프레드시트 CSV 링크를 붙여넣으세요! ★
+        const sheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRri5Q0YRwIkcGrjMpqeyrZPQJBJTiQ9F9YKMJxrvYk_P2Q9LZW7sP61nQMtXse5-S85zFbXBOz9f_/pub?gid=1583258371&single=true&output=csv";
+
+        function loadTimetable() {
+            Papa.parse(sheetCsvUrl, {
+                download: true,
+                header: false,
+                complete: function(results) {
+                    const data = results.data;
+                    let tableHtml = "";
+
+                    // 구글 시트 데이터를 HTML 표(Table) 태그로 변환
+                    data.forEach((row, rowIndex) => {
+                        // 빈 줄(데이터가 없는 행)은 건너뛰기
+                        if(row.length === 1 && row[0] === "") return;
+
+                        tableHtml += "<tr>";
+                        row.forEach((cell) => {
+                            // 셀 내용 안의 줄바꿈(\n)을 HTML <br> 태그로 변환 (예: 1-1\n3-3)
+                            let cellText = cell.replace(/\n/g, "<br>");
+                            
+                            // 첫 번째 행은 제목(th)으로 처리
+                            if (rowIndex === 0) {
+                                tableHtml += `<th>${cellText}</th>`;
+                            } else {
+                                tableHtml += `<td>${cellText}</td>`;
+                            }
+                        });
+                        tableHtml += "</tr>";
+                    });
+
+                    // 화면에 출력하고 로딩 메시지 숨기기
+                    document.getElementById('timetable').innerHTML = tableHtml;
+                    document.getElementById('loading').style.display = 'none';
+                },
+                error: function(err) {
+                    document.getElementById('loading').innerText = "데이터를 불러오는 데 실패했습니다. 링크를 확인해주세요.";
+                    console.error("데이터 로딩 에러:", err);
+                }
+            });
+        }
+
+        // 페이지가 열리면 시간표 불러오기 실행
+        loadTimetable();
+    </script>
+
+</body>
+</html>
