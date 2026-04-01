@@ -9,9 +9,10 @@
     <style>
         :root {
             --primary-color: #4f46e5;
-            --bg-color: #f8fafc;
+            --bg-color: #f1f5f9;
             --text-main: #1e293b;
             --border-color: #cbd5e1;
+            --lunch-color: #fef08a; /* 점심시간 강조 색상 (연한 노랑) */
         }
 
         body {
@@ -19,7 +20,7 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding: 20px;
+            padding: 15px; /* 모바일을 위해 패딩 약간 축소 */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -27,21 +28,25 @@
 
         .header {
             text-align: center;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             width: 100%;
             max-width: 1200px;
+            background: white;
+            padding: 20px 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         /* 날짜가 들어갈 큰 제목 스타일 */
         .header h1 {
-            font-size: 2rem;
+            font-size: 1.8rem; /* 모바일에 맞춰 약간 축소 */
             color: var(--primary-color);
-            margin: 0 0 8px 0;
+            margin: 0 0 5px 0;
             font-weight: 800;
         }
 
         .header p {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: #64748b;
             margin: 0;
         }
@@ -49,32 +54,33 @@
         .table-container {
             width: 100%;
             max-width: 100%;
-            overflow-x: auto;
+            overflow-x: auto; /* 좌우 스크롤 허용 */
             background: #ffffff;
             border-radius: 12px;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
             border: 1px solid var(--border-color);
+            -webkit-overflow-scrolling: touch; /* 모바일 부드러운 스크롤 */
         }
 
         table {
             border-collapse: collapse;
             width: 100%;
-            min-width: 1200px; /* 열 개수가 줄었으므로 최소 너비 조정 */
+            min-width: 1000px; /* 모바일 가로 스크롤 최소 너비 */
             table-layout: fixed;
             font-size: 0.85rem;
         }
 
         /* 교시 열의 너비 고정 */
         table th:first-child, table td.time-cell {
-            width: 70px;
+            width: 65px; /* 너비 약간 축소 */
         }
 
         th, td {
             border: 1px solid var(--border-color);
-            padding: 4px 4px; /* 패딩을 줄여서 높이 감소 */
+            padding: 4px;
             text-align: center;
             vertical-align: middle;
-            line-height: 1.3;
+            line-height: 1.2;
             white-space: normal;
             word-break: keep-all;
         }
@@ -85,7 +91,7 @@
 
         /* 학년 표시용 큰 헤더 (병합된 셀) */
         th.grade-header {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 800;
             padding: 8px 0;
         }
@@ -103,38 +109,60 @@
         td.time-cell-top { border-bottom: none !important; }
         td.time-cell-bottom { border-top: none !important; }
 
-        /* 행 높이 고정 (과목 셀) - 줄임 */
+        /* 행 높이 고정 (과목 셀) */
         td.subject-cell {
             font-weight: 700;
             border-bottom: none !important; 
             padding-bottom: 2px;
             color: #1e293b;
-            height: 35px; /* 높이 줄임 */
+            height: 32px; 
         }
 
-        /* 행 높이 고정 (선생님 셀) - 줄임 */
+        /* 행 높이 고정 (선생님 셀) */
         td.teacher-cell {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #64748b; 
             border-top: none !important; 
             padding-top: 2px;
-            height: 20px; /* 높이 줄임 */
+            height: 18px; 
         }
 
-        tr:hover td.subject-cell, tr:hover td.teacher-cell {
+        /* 점심시간 행 전체 강조 스타일 */
+        .lunch-row td {
+            background-color: var(--lunch-color) !important;
+            font-weight: 800;
+            color: #854d0e; /* 진한 노란색/갈색 계열 글씨 */
+            height: 40px; /* 점심시간 행 높이 */
+            border-top: 2px solid #eab308;
+            border-bottom: 2px solid #eab308;
+            letter-spacing: 2px;
+        }
+        
+        /* 점심시간 교시 칸 스타일 덮어쓰기 */
+        .lunch-row td.time-cell {
+            background-color: #fde047 !important; /* 약간 더 진한 노랑 */
+            border-right: 2px solid var(--primary-color);
+        }
+
+        tr:hover td.subject-cell:not(.lunch-row td), tr:hover td.teacher-cell:not(.lunch-row td) {
             filter: brightness(0.95);
         }
 
         .loader-container { padding: 50px; text-align: center; }
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 16px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.5rem; }
+            .header { padding: 15px 0; margin-bottom: 15px; }
+        }
     </style>
 </head>
 <body>
 
     <div class="header">
         <h1 id="main-title">📅 실시간 오늘의 시간표</h1>
-        <p>열 숨김, 행 높이 축소, 전체 교차 색상 적용 완료</p>
+        <p>점심시간 강조 및 모바일 뷰 최적화</p>
     </div>
 
     <div class="table-container">
@@ -169,12 +197,9 @@
         // 학년별 및 교시별(홀/짝) 교차 색상 반환
         function getGradeColor(colIndex, periodNum) {
             const isEvenPeriod = periodNum % 2 === 0;
-            const isLunch = periodNum === 0;
-
-            if (isLunch) return "#e2e8f0"; // 점심시간 등 공통 음영
 
             if (colIndex >= 1 && colIndex <= 4) {
-                return isEvenPeriod ? "#fef08a" : "#fef9c3"; // 1학년 노랑 (짝수교시는 약간 어둡게)
+                return isEvenPeriod ? "#fef08a" : "#fef9c3"; // 1학년 노랑
             }
             if (colIndex >= 5 && colIndex <= 9) {
                 return isEvenPeriod ? "#bbf7d0" : "#dcfce3"; // 2학년 초록
@@ -185,9 +210,8 @@
             return "#ffffff";
         }
 
-        // 1열(교시) 전용 교차 색상 (기존 로직 유지)
+        // 1열(교시) 전용 교차 색상
         function getPeriodColor(periodNum) {
-            if (periodNum === 0) return "#cbd5e1"; // 점심시간 등은 좀 더 진한 회색
             return periodNum % 2 !== 0 ? "#ffffff" : "#f1f5f9"; // 홀수 흰색, 짝수 연한 회색 교차
         }
 
@@ -205,10 +229,9 @@
                     
                     let headHtml = "";
                     let bodyHtml = "";
-                    let currentPeriod = 0;
+                    let currentPeriod = 1; // 기본 1교시로 시작
 
                     data.forEach((row, rowIndex) => {
-                        // ★ 변경: 인덱스 0부터 14까지만 유지 (총 15열: 교시 1열 + 1학년 4열 + 2학년 5열 + 3학년 5열)
                         let slicedRow = row.slice(0, 15); 
 
                         // 첫 번째 줄(Row 0): 데이터 무시
@@ -223,7 +246,7 @@
                             let colspanCount = 0;
                             let startIndex = 1;
 
-                            for (let i = 1; i < 15; i++) { // 15열까지만 반복
+                            for (let i = 1; i < 15; i++) {
                                 let cell = slicedRow[i] ? slicedRow[i].trim() : "";
                                 
                                 if (cell !== "") {
@@ -247,7 +270,7 @@
                         // 세 번째 줄(Row 2): '1반', '2반' 등 반 표시
                         if (rowIndex === 2) {
                             headHtml += "<tr>";
-                            for (let i = 1; i < 15; i++) { // 15열까지만 반복
+                            for (let i = 1; i < 15; i++) {
                                 let cell = slicedRow[i] ? slicedRow[i].replace(/\n/g, "<br>") : "";
                                 headHtml += `<th style="background-color: ${getGradeColor(i, 1)}; color: #1e293b;">${cell}</th>`;
                             }
@@ -257,23 +280,37 @@
 
                         // 본문 데이터 (Row 3 이상)
                         let isTeacherRow = slicedRow[0] === undefined || slicedRow[0].trim() === "";
-                        
+                        let isLunchRow = false;
+
                         if (!isTeacherRow && slicedRow[0]) {
-                            if (slicedRow[0].includes("점심")) currentPeriod = 0; 
-                            else {
+                            if (slicedRow[0].includes("점심")) {
+                                isLunchRow = true;
+                                currentPeriod = 0; // 점심시간은 교차색상 계산에서 제외하기 위해 임시로 0 처리
+                            } else {
                                 let match = slicedRow[0].match(/\d+/);
                                 if (match) currentPeriod = parseInt(match[0], 10);
                             }
                         }
 
+                        // 점심시간 행 렌더링 (병합 처리)
+                        if (isLunchRow) {
+                             bodyHtml += `<tr class="lunch-row">`;
+                             bodyHtml += `<td class="time-cell">점심</td>`;
+                             // 점심시간 텍스트 추출 (예: "점심 12:20-13:20")
+                             let lunchText = slicedRow[0].replace(/\n/g, " "); 
+                             bodyHtml += `<td colspan="14">${lunchText}</td>`;
+                             bodyHtml += `</tr>`;
+                             return; // 다음 행으로 넘어감
+                        }
+                        
+                        // 선생님 행인데 바로 위가 점심시간이었다면 건너뜀 (빈 행 방지)
+                        if(isTeacherRow && currentPeriod === 0) return;
+
                         let pColor = getPeriodColor(currentPeriod);
-                        if (slicedRow[0] && slicedRow[0].includes("점심")) pColor = "#cbd5e1";
 
                         bodyHtml += "<tr>";
                         slicedRow.forEach((cell, cellIndex) => {
                             let formattedCell = cell ? cell.replace(/\n/g, "<br>") : "";
-                            
-                            // ★ 변경: getGradeColor에 현재 교시 정보(currentPeriod)도 함께 전달하여 교차 색상 적용
                             let gColor = getGradeColor(cellIndex, currentPeriod);
 
                             if (cellIndex === 0) {
