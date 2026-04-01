@@ -3,101 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3월 3일 시간표</title>
+    <title>실시간 우리 학교 시간표</title>
+    <!-- CSV 파싱을 위한 PapaParse 라이브러리 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <!-- 웹 폰트 (Pretendard) -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
     <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-light: #e0e7ff;
+            --bg-color: #f8fafc;
+            --text-main: #1e293b;
+            --border-color: #cbd5e1;
+        }
+
         body {
-            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-            text-align: center;
-            background-color: #f9f9f9;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             margin: 0;
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        h1 { color: #333; }
-        .table-container {
-            overflow-x: auto; /* 화면이 좁을 때 가로 스크롤 생성 */
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+            width: 100%;
             max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            border-radius: 8px;
         }
+
+        .header h1 {
+            font-size: 1.75rem;
+            color: var(--primary-color);
+            margin: 0 0 8px 0;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 0.95rem;
+            color: #64748b;
+            margin: 0;
+        }
+
+        /* 표를 감싸는 컨테이너 (반응형 스크롤) */
+        .table-container {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
         table {
             border-collapse: collapse;
             width: 100%;
-            white-space: nowrap; /* 글자 줄바꿈 방지 */
+            min-width: 800px; /* 모바일에서도 표 형태 유지 */
+            font-size: 0.85rem;
+            white-space: nowrap;
         }
+
         th, td {
-            border: 1px solid #ddd;
-            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
             text-align: center;
-            font-size: 14px;
+            vertical-align: middle;
+            line-height: 1.4;
         }
-        th {
-            background-color: #4CAF50;
-            color: white;
-            font-weight: bold;
+
+        /* 1, 2, 3행 (헤더 부분) 스타일 */
+        tr:nth-child(1) td, tr:nth-child(2) td, tr:nth-child(3) td {
+            background-color: var(--primary-color);
+            color: #ffffff;
+            font-weight: 600;
+            border-color: #6366f1;
         }
-        tr:nth-child(even) { background-color: #f2f2f2; }
-        .loading { margin-top: 50px; font-size: 18px; color: #666; }
+
+        /* 교시를 나타내는 첫 번째 열 고정 및 스타일 */
+        td:first-child {
+            font-weight: 700;
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            position: sticky;
+            left: 0;
+            z-index: 10;
+            border-right: 2px solid var(--primary-color);
+        }
+
+        /* 데이터 행 호버 효과 */
+        tr:nth-child(n+4):hover {
+            background-color: #f1f5f9;
+        }
+
+        /* 빈 셀 처리 */
+        td:empty {
+            background-color: #f8fafc;
+        }
+
+        /* 로딩 애니메이션 */
+        .loader-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 50px;
+        }
+        
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-weight: 600;
+            padding: 20px;
+            text-align: center;
+            background: #fee2e2;
+            border-radius: 8px;
+            border: 1px solid #fca5a5;
+        }
     </style>
 </head>
 <body>
 
-    <h1>📅 3월 3일 시간표</h1>
-    
-    <div id="loading" class="loading">실시간 시간표 데이터를 불러오는 중입니다...</div>
-    
+    <div class="header">
+        <h1>📅 실시간 오늘의 시간표</h1>
+        <p>구글 스프레드시트와 실시간으로 연동되어 있습니다.</p>
+    </div>
+
     <div class="table-container">
+        <div id="loader" class="loader-container">
+            <div class="loader"></div>
+            <div>시간표 데이터를 불러오는 중입니다...</div>
+        </div>
         <table id="timetable">
-            </table>
+            <tbody id="timetable-body">
+                <!-- 자바스크립트를 통해 데이터가 렌더링 됩니다 -->
+            </tbody>
+        </table>
     </div>
 
     <script>
-        // ★ 여기에 1단계에서 복사한 구글 스프레드시트 CSV 링크를 붙여넣으세요! ★
+        // 사용자가 제공한 구글 스프레드시트 CSV 링크
         const sheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRri5Q0YRwIkcGrjMpqeyrZPQJBJTiQ9F9YKMJxrvYk_P2Q9LZW7sP61nQMtXse5-S85zFbXBOz9f_/pub?gid=1583258371&single=true&output=csv";
 
         function loadTimetable() {
             Papa.parse(sheetCsvUrl, {
                 download: true,
                 header: false,
+                skipEmptyLines: 'greedy', // 완전히 비어있는 줄 무시
                 complete: function(results) {
                     const data = results.data;
+                    const tbody = document.getElementById('timetable-body');
                     let tableHtml = "";
 
-                    // 구글 시트 데이터를 HTML 표(Table) 태그로 변환
                     data.forEach((row, rowIndex) => {
-                        // 빈 줄(데이터가 없는 행)은 건너뛰기
-                        if(row.length === 1 && row[0] === "") return;
-
                         tableHtml += "<tr>";
-                        row.forEach((cell) => {
-                            // 셀 내용 안의 줄바꿈(\n)을 HTML <br> 태그로 변환 (예: 1-1\n3-3)
-                            let cellText = cell.replace(/\n/g, "<br>");
-                            
-                            // 첫 번째 행은 제목(th)으로 처리
-                            if (rowIndex === 0) {
-                                tableHtml += `<th>${cellText}</th>`;
-                            } else {
-                                tableHtml += `<td>${cellText}</td>`;
-                            }
+                        row.forEach((cell, cellIndex) => {
+                            // 줄바꿈(\n) 문자를 HTML의 <br> 태그로 변환
+                            let formattedCell = cell.replace(/\n/g, "<br>");
+                            tableHtml += `<td>${formattedCell}</td>`;
                         });
                         tableHtml += "</tr>";
                     });
 
-                    // 화면에 출력하고 로딩 메시지 숨기기
-                    document.getElementById('timetable').innerHTML = tableHtml;
-                    document.getElementById('loading').style.display = 'none';
+                    // 화면에 렌더링
+                    tbody.innerHTML = tableHtml;
+                    
+                    // 로딩 숨기기
+                    document.getElementById('loader').style.display = 'none';
                 },
                 error: function(err) {
-                    document.getElementById('loading').innerText = "데이터를 불러오는 데 실패했습니다. 링크를 확인해주세요.";
-                    console.error("데이터 로딩 에러:", err);
+                    const loader = document.getElementById('loader');
+                    loader.innerHTML = `<div class="error-message">데이터를 불러오지 못했습니다.<br>인터넷 연결이나 링크를 확인해주세요.</div>`;
+                    console.error("CSV 파싱 에러:", err);
                 }
             });
         }
 
-        // 페이지가 열리면 시간표 불러오기 실행
-        loadTimetable();
+        // 페이지 로드 시 실행
+        document.addEventListener('DOMContentLoaded', loadTimetable);
     </script>
 
 </body>
