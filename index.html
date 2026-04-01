@@ -59,7 +59,7 @@
         table {
             border-collapse: collapse;
             width: 100%;
-            min-width: 1300px;
+            min-width: 1200px; /* 열 개수가 줄었으므로 최소 너비 조정 */
             table-layout: fixed;
             font-size: 0.85rem;
         }
@@ -71,10 +71,10 @@
 
         th, td {
             border: 1px solid var(--border-color);
-            padding: 8px 4px;
+            padding: 4px 4px; /* 패딩을 줄여서 높이 감소 */
             text-align: center;
             vertical-align: middle;
-            line-height: 1.4;
+            line-height: 1.3;
             white-space: normal;
             word-break: keep-all;
         }
@@ -87,7 +87,7 @@
         th.grade-header {
             font-size: 1.1rem;
             font-weight: 800;
-            padding: 12px 0;
+            padding: 8px 0;
         }
 
         /* 첫 번째 열(교시) 고정 설정 */
@@ -103,22 +103,22 @@
         td.time-cell-top { border-bottom: none !important; }
         td.time-cell-bottom { border-top: none !important; }
 
-        /* 행 높이 고정 (과목 셀) */
+        /* 행 높이 고정 (과목 셀) - 줄임 */
         td.subject-cell {
             font-weight: 700;
             border-bottom: none !important; 
             padding-bottom: 2px;
             color: #1e293b;
-            height: 40px; /* 모든 과목 칸 높이 동일화 */
+            height: 35px; /* 높이 줄임 */
         }
 
-        /* 행 높이 고정 (선생님 셀) */
+        /* 행 높이 고정 (선생님 셀) - 줄임 */
         td.teacher-cell {
             font-size: 0.75rem;
             color: #64748b; 
             border-top: none !important; 
             padding-top: 2px;
-            height: 25px; /* 모든 선생님 칸 높이 동일화 */
+            height: 20px; /* 높이 줄임 */
         }
 
         tr:hover td.subject-cell, tr:hover td.teacher-cell {
@@ -134,7 +134,7 @@
 
     <div class="header">
         <h1 id="main-title">📅 실시간 오늘의 시간표</h1>
-        <p>행 높이 동일화, 교차 색상, 실시간 날짜 반영 완료</p>
+        <p>열 숨김, 행 높이 축소, 전체 교차 색상 적용 완료</p>
     </div>
 
     <div class="table-container">
@@ -155,7 +155,7 @@
     <script>
         const sheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRri5Q0YRwIkcGrjMpqeyrZPQJBJTiQ9F9YKMJxrvYk_P2Q9LZW7sP61nQMtXse5-S85zFbXBOz9f_/pub?gid=1583258371&single=true&output=csv";
 
-        // 페이지 로드 시 오늘 날짜 형식으로 제목 변경 (실시간 O월 O일(요일) 시간표)
+        // 페이지 로드 시 오늘 날짜 형식으로 제목 변경
         function setTodayTitle() {
             const today = new Date();
             const month = today.getMonth() + 1;
@@ -166,22 +166,33 @@
             document.getElementById('main-title').innerText = `📅 실시간 ${month}월 ${date}일(${dayName}) 시간표`;
         }
 
-        function getGradeColor(colIndex) {
-            if (colIndex >= 1 && colIndex <= 4) return "#fef9c3"; // 1학년 노랑
-            if (colIndex >= 5 && colIndex <= 9) return "#dcfce3"; // 2학년 초록
-            if (colIndex >= 10 && colIndex <= 14) return "#dbeafe"; // 3학년 파랑
-            if (colIndex >= 15 && colIndex <= 16) return "#f3e8ff"; // 특수학급 보라
+        // 학년별 및 교시별(홀/짝) 교차 색상 반환
+        function getGradeColor(colIndex, periodNum) {
+            const isEvenPeriod = periodNum % 2 === 0;
+            const isLunch = periodNum === 0;
+
+            if (isLunch) return "#e2e8f0"; // 점심시간 등 공통 음영
+
+            if (colIndex >= 1 && colIndex <= 4) {
+                return isEvenPeriod ? "#fef08a" : "#fef9c3"; // 1학년 노랑 (짝수교시는 약간 어둡게)
+            }
+            if (colIndex >= 5 && colIndex <= 9) {
+                return isEvenPeriod ? "#bbf7d0" : "#dcfce3"; // 2학년 초록
+            }
+            if (colIndex >= 10 && colIndex <= 14) {
+                return isEvenPeriod ? "#bfdbfe" : "#dbeafe"; // 3학년 파랑
+            }
             return "#ffffff";
         }
 
-        // 교차 색상 (홀수 교시/짝수 교시 구분)
+        // 1열(교시) 전용 교차 색상 (기존 로직 유지)
         function getPeriodColor(periodNum) {
-            if (periodNum === 0) return "#e2e8f0"; // 점심시간 등은 좀 더 진한 회색
+            if (periodNum === 0) return "#cbd5e1"; // 점심시간 등은 좀 더 진한 회색
             return periodNum % 2 !== 0 ? "#ffffff" : "#f1f5f9"; // 홀수 흰색, 짝수 연한 회색 교차
         }
 
         function loadTimetable() {
-            setTodayTitle(); // 제목 설정 함수 실행
+            setTodayTitle();
 
             Papa.parse(sheetCsvUrl, {
                 download: true,
@@ -197,12 +208,13 @@
                     let currentPeriod = 0;
 
                     data.forEach((row, rowIndex) => {
-                        let slicedRow = row.slice(0, 17); // 17칸(교시+16개반)만 유지하고 우측의 이름/월중계획 등 삭제
+                        // ★ 변경: 인덱스 0부터 14까지만 유지 (총 15열: 교시 1열 + 1학년 4열 + 2학년 5열 + 3학년 5열)
+                        let slicedRow = row.slice(0, 15); 
 
-                        // 첫 번째 줄(Row 0): 데이터 무시 (제목은 위에서 자동으로 생성함)
+                        // 첫 번째 줄(Row 0): 데이터 무시
                         if (rowIndex === 0) return;
 
-                        // 두 번째 줄(Row 1): '1학년', '2학년' 등 헤더 중앙 정렬(Colspan 적용)
+                        // 두 번째 줄(Row 1): '1학년', '2학년' 등 헤더 중앙 정렬
                         if (rowIndex === 1) {
                             headHtml += "<tr>";
                             headHtml += `<th rowspan="2" class="time-cell-header" style="background-color: var(--primary-color); color: white;">교시</th>`;
@@ -211,12 +223,12 @@
                             let colspanCount = 0;
                             let startIndex = 1;
 
-                            for (let i = 1; i < 17; i++) {
+                            for (let i = 1; i < 15; i++) { // 15열까지만 반복
                                 let cell = slicedRow[i] ? slicedRow[i].trim() : "";
                                 
                                 if (cell !== "") {
                                     if (currentHeader !== "") {
-                                        headHtml += `<th class="grade-header" colspan="${colspanCount}" style="background-color: ${getGradeColor(startIndex)}; color: #1e293b;">${currentHeader}</th>`;
+                                        headHtml += `<th class="grade-header" colspan="${colspanCount}" style="background-color: ${getGradeColor(startIndex, 1)}; color: #1e293b;">${currentHeader}</th>`;
                                     }
                                     currentHeader = cell;
                                     colspanCount = 1;
@@ -226,7 +238,7 @@
                                 }
                             }
                             if (currentHeader !== "") {
-                                headHtml += `<th class="grade-header" colspan="${colspanCount}" style="background-color: ${getGradeColor(startIndex)}; color: #1e293b;">${currentHeader}</th>`;
+                                headHtml += `<th class="grade-header" colspan="${colspanCount}" style="background-color: ${getGradeColor(startIndex, 1)}; color: #1e293b;">${currentHeader}</th>`;
                             }
                             headHtml += "</tr>";
                             return;
@@ -235,10 +247,9 @@
                         // 세 번째 줄(Row 2): '1반', '2반' 등 반 표시
                         if (rowIndex === 2) {
                             headHtml += "<tr>";
-                            // i=1 부터 시작 (교시 열은 위에서 rowspan="2"로 처리했으므로 생략)
-                            for (let i = 1; i < 17; i++) {
+                            for (let i = 1; i < 15; i++) { // 15열까지만 반복
                                 let cell = slicedRow[i] ? slicedRow[i].replace(/\n/g, "<br>") : "";
-                                headHtml += `<th style="background-color: ${getGradeColor(i)}; color: #1e293b;">${cell}</th>`;
+                                headHtml += `<th style="background-color: ${getGradeColor(i, 1)}; color: #1e293b;">${cell}</th>`;
                             }
                             headHtml += "</tr>";
                             return;
@@ -256,12 +267,14 @@
                         }
 
                         let pColor = getPeriodColor(currentPeriod);
-                        if (slicedRow[0] && slicedRow[0].includes("점심")) pColor = "#e2e8f0";
+                        if (slicedRow[0] && slicedRow[0].includes("점심")) pColor = "#cbd5e1";
 
                         bodyHtml += "<tr>";
                         slicedRow.forEach((cell, cellIndex) => {
                             let formattedCell = cell ? cell.replace(/\n/g, "<br>") : "";
-                            let gColor = getGradeColor(cellIndex);
+                            
+                            // ★ 변경: getGradeColor에 현재 교시 정보(currentPeriod)도 함께 전달하여 교차 색상 적용
+                            let gColor = getGradeColor(cellIndex, currentPeriod);
 
                             if (cellIndex === 0) {
                                 if (isTeacherRow) {
@@ -280,7 +293,6 @@
                         bodyHtml += "</tr>";
                     });
 
-                    // 생성된 HTML 표에 삽입
                     thead.innerHTML = headHtml;
                     tbody.innerHTML = bodyHtml;
                     document.getElementById('loader').style.display = 'none';
