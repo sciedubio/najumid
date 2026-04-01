@@ -103,18 +103,22 @@
         td.time-cell-top { border-bottom: none !important; }
         td.time-cell-bottom { border-top: none !important; }
 
+        /* 행 높이 고정 (과목 셀) */
         td.subject-cell {
             font-weight: 700;
             border-bottom: none !important; 
             padding-bottom: 2px;
             color: #1e293b;
+            height: 40px; /* 모든 과목 칸 높이 동일화 */
         }
 
+        /* 행 높이 고정 (선생님 셀) */
         td.teacher-cell {
             font-size: 0.75rem;
             color: #64748b; 
             border-top: none !important; 
             padding-top: 2px;
+            height: 25px; /* 모든 선생님 칸 높이 동일화 */
         }
 
         tr:hover td.subject-cell, tr:hover td.teacher-cell {
@@ -129,9 +133,8 @@
 <body>
 
     <div class="header">
-        <!-- 자바스크립트가 여기에 날짜를 뽑아와서 넣습니다 -->
         <h1 id="main-title">📅 실시간 오늘의 시간표</h1>
-        <p>열 너비 균일화 및 학년별 중앙 정렬 적용 완료</p>
+        <p>행 높이 동일화, 교차 색상, 실시간 날짜 반영 완료</p>
     </div>
 
     <div class="table-container">
@@ -152,6 +155,17 @@
     <script>
         const sheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRri5Q0YRwIkcGrjMpqeyrZPQJBJTiQ9F9YKMJxrvYk_P2Q9LZW7sP61nQMtXse5-S85zFbXBOz9f_/pub?gid=1583258371&single=true&output=csv";
 
+        // 페이지 로드 시 오늘 날짜 형식으로 제목 변경 (실시간 O월 O일(요일) 시간표)
+        function setTodayTitle() {
+            const today = new Date();
+            const month = today.getMonth() + 1;
+            const date = today.getDate();
+            const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+            const dayName = dayNames[today.getDay()];
+            
+            document.getElementById('main-title').innerText = `📅 실시간 ${month}월 ${date}일(${dayName}) 시간표`;
+        }
+
         function getGradeColor(colIndex) {
             if (colIndex >= 1 && colIndex <= 4) return "#fef9c3"; // 1학년 노랑
             if (colIndex >= 5 && colIndex <= 9) return "#dcfce3"; // 2학년 초록
@@ -160,14 +174,15 @@
             return "#ffffff";
         }
 
+        // 교차 색상 (홀수 교시/짝수 교시 구분)
         function getPeriodColor(periodNum) {
-            const colors = [
-                "#ffffff", "#ffe4e6", "#ffedd5", "#fef3c7", "#dcfce3", "#dbeafe", "#e0e7ff", "#fae8ff"
-            ];
-            return colors[periodNum] || "#f8fafc";
+            if (periodNum === 0) return "#e2e8f0"; // 점심시간 등은 좀 더 진한 회색
+            return periodNum % 2 !== 0 ? "#ffffff" : "#f1f5f9"; // 홀수 흰색, 짝수 연한 회색 교차
         }
 
         function loadTimetable() {
+            setTodayTitle(); // 제목 설정 함수 실행
+
             Papa.parse(sheetCsvUrl, {
                 download: true,
                 header: false,
@@ -176,7 +191,6 @@
                     const data = results.data;
                     const thead = document.getElementById('timetable-head');
                     const tbody = document.getElementById('timetable-body');
-                    const titleElement = document.getElementById('main-title');
                     
                     let headHtml = "";
                     let bodyHtml = "";
@@ -185,21 +199,10 @@
                     data.forEach((row, rowIndex) => {
                         let slicedRow = row.slice(0, 17); // 17칸(교시+16개반)만 유지하고 우측의 이름/월중계획 등 삭제
 
-                        // ★ 1. 첫 번째 줄(Row 0): 날짜 추출 후 화면에 표시하고 표에서는 숨김
-                        if (rowIndex === 0) {
-                            let extractedDate = "";
-                            row.forEach(cell => {
-                                if (cell && cell.includes("시간표")) {
-                                    extractedDate = cell.trim();
-                                }
-                            });
-                            if (extractedDate) {
-                                titleElement.innerText = "📅 " + extractedDate;
-                            }
-                            return; // 현재 행을 표에 추가하지 않고 넘어감
-                        }
+                        // 첫 번째 줄(Row 0): 데이터 무시 (제목은 위에서 자동으로 생성함)
+                        if (rowIndex === 0) return;
 
-                        // ★ 2. 두 번째 줄(Row 1): '1학년', '2학년' 등 헤더 중앙 정렬(Colspan 적용)
+                        // 두 번째 줄(Row 1): '1학년', '2학년' 등 헤더 중앙 정렬(Colspan 적용)
                         if (rowIndex === 1) {
                             headHtml += "<tr>";
                             headHtml += `<th rowspan="2" class="time-cell-header" style="background-color: var(--primary-color); color: white;">교시</th>`;
@@ -229,7 +232,7 @@
                             return;
                         }
 
-                        // ★ 3. 세 번째 줄(Row 2): '1반', '2반' 등 반 표시
+                        // 세 번째 줄(Row 2): '1반', '2반' 등 반 표시
                         if (rowIndex === 2) {
                             headHtml += "<tr>";
                             // i=1 부터 시작 (교시 열은 위에서 rowspan="2"로 처리했으므로 생략)
@@ -241,7 +244,7 @@
                             return;
                         }
 
-                        // ★ 4. 본문 데이터 (Row 3 이상)
+                        // 본문 데이터 (Row 3 이상)
                         let isTeacherRow = slicedRow[0] === undefined || slicedRow[0].trim() === "";
                         
                         if (!isTeacherRow && slicedRow[0]) {
@@ -253,7 +256,7 @@
                         }
 
                         let pColor = getPeriodColor(currentPeriod);
-                        if (slicedRow[0] && slicedRow[0].includes("점심")) pColor = "#f1f5f9";
+                        if (slicedRow[0] && slicedRow[0].includes("점심")) pColor = "#e2e8f0";
 
                         bodyHtml += "<tr>";
                         slicedRow.forEach((cell, cellIndex) => {
