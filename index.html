@@ -9,7 +9,7 @@
     <style>
         :root {
             --primary-color: #4f46e5;
-            --bg-color: #f3f4f6; /* 배경을 좀 더 앱스러운 라이트 그레이로 */
+            --bg-color: #f3f4f6;
             --text-main: #1e293b;
             --border-color: #cbd5e1;
             --lunch-color: #fef08a;
@@ -34,7 +34,7 @@
             background: white;
             padding: 20px 0;
             border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* 부드러운 그림자 */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         .header h1 {
@@ -81,17 +81,15 @@
             width: 100%;
             max-width: 100%;
             overflow-x: auto;
-            /* 표 바깥 컨테이너의 선/그림자를 지우고 투명하게 변경 */
             background: transparent; 
             border-radius: 16px;
             -webkit-overflow-scrolling: touch;
-            padding-bottom: 20px; /* 그림자 잘림 방지 */
+            padding-bottom: 20px; 
         }
 
-        /* ★ 카드형 그리드 디자인의 핵심 ★ */
         table {
             border-collapse: separate;
-            border-spacing: 6px; /* 셀 사이의 여백(Gap) 생성 */
+            border-spacing: 6px; 
             width: 100%;
             min-width: 1200px;
             table-layout: fixed;
@@ -102,26 +100,24 @@
         }
 
         table th:first-child, table td.time-cell {
-            width: 70px; /* 교시 칸 크기 약간 확보 */
+            width: 70px; 
         }
 
-        /* 모든 셀에 공통된 카드(블록) 스타일 적용 */
         th, td {
-            border: none; /* 딱딱한 선 제거 */
-            border-radius: 12px; /* 둥근 모서리 */
+            border: none; 
+            border-radius: 12px; 
             padding: 8px 4px;
             text-align: center;
             vertical-align: middle;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04); /* 살짝 떠 있는 효과 */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04); 
             white-space: normal;
-            word-break: keep-all;
+            word-break: break-word; /* 글자가 길면 강제로 접히도록 변경 */
         }
 
-        /* 요일, 학년 등 헤더 스타일 */
         th { 
             font-weight: 600; 
             font-size: clamp(0.95rem, 1.5vw, 1.1rem); 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); /* 헤더는 조금 더 진한 그림자 */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); 
         }
         
         th.grade-header { 
@@ -130,7 +126,6 @@
             padding: 12px 0; 
         }
 
-        /* 교시 열 고정 스타일 */
         td.time-cell, th.time-cell-header {
             font-weight: 800;
             font-size: clamp(1rem, 1.5vw, 1.15rem);
@@ -138,7 +133,6 @@
             left: 0;
             z-index: 10;
             color: var(--primary-color);
-            /* 스크롤 시 옆 데이터가 비치지 않게 솔리드 컬러 적용 */
             box-shadow: 3px 0 6px rgba(0,0,0,0.03); 
         }
         
@@ -150,10 +144,10 @@
 
         /* ★ 과목+선생님이 합쳐진 카드 셀 스타일 ★ */
         td.card-cell {
-            height: 65px; /* 통합된 카드의 높이 */
+            height: 70px; /* 글자가 두 줄로 접힐 경우를 대비해 카드 높이 살짝 증가 */
             transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
             position: relative;
-            padding: 6px;
+            padding: 6px 4px;
         }
 
         .card-content {
@@ -161,14 +155,17 @@
             flex-direction: column;
             justify-content: center;
             height: 100%;
-            gap: 4px; /* 과목과 선생님 이름 사이 간격 */
+            gap: 4px; 
         }
 
         .subject-text {
             font-weight: 800;
-            font-size: clamp(0.95rem, 2vw, 1.2rem); 
+            /* 긴 글자 대응: 모바일 최소 크기를 0.85rem으로 낮추고, 자간을 좁혀 5글자도 쏙 들어가게 세팅 */
+            font-size: clamp(0.85rem, 2vw, 1.15rem); 
+            letter-spacing: -0.5px;
             color: #1e293b;
-            line-height: 1.1;
+            line-height: 1.2;
+            word-break: break-all; /* 창체동아리 처럼 긴 글자가 공간이 없으면 다음 줄로 넘어가도록 허용 */
         }
 
         .teacher-text {
@@ -177,7 +174,6 @@
             font-weight: 600;
         }
 
-        /* 카드 마우스 호버(Hover) 시 살짝 떠오르는 애니메이션 */
         tr:hover td.card-cell:not(.lunch-row td) {
             transform: translateY(-2px);
             filter: brightness(0.96);
@@ -185,22 +181,20 @@
             z-index: 2;
         }
 
-        /* 점심시간 전용 카드 스타일 */
         .lunch-row td {
             background-color: var(--lunch-color) !important;
             font-weight: 800;
             font-size: clamp(1.1rem, 2vw, 1.3rem);
             color: #a16207;
             height: 55px;
-            letter-spacing: 2px;
-            box-shadow: 0 4px 10px rgba(234, 179, 8, 0.2); /* 노란빛 그림자 */
+            letter-spacing: 1px;
+            box-shadow: 0 4px 10px rgba(234, 179, 8, 0.2); 
         }
         
         .lunch-row td.time-cell {
             background-color: #fde047 !important;
         }
 
-        /* 검색 하이라이트 스타일 (앱스러운 둥근 뱃지 느낌) */
         .highlight-teacher {
             background-color: #fef08a !important; 
             box-shadow: 0 0 0 3px #fbbf24 inset, 0 4px 8px rgba(251, 191, 36, 0.3) !important;
@@ -209,7 +203,6 @@
             color: #b45309 !important;
         }
 
-        /* 현재 교시 깜빡임 효과 (테두리가 부드럽게 빛남) */
         @keyframes pulseGlow {
             0% { box-shadow: 0 2px 4px rgba(0,0,0,0.05), inset 0 0 0 2px transparent; }
             50% { box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4), inset 0 0 0 3px var(--primary-color); }
@@ -231,7 +224,7 @@
         @media (max-width: 600px) {
             .header { padding: 15px 0; margin-bottom: 15px; border-radius: 12px; }
             .controls { flex-direction: column; padding: 0 15px; }
-            table { border-spacing: 4px; /* 모바일은 갭을 살짝 줄임 */ }
+            table { border-spacing: 4px; }
         }
     </style>
 </head>
@@ -239,7 +232,7 @@
 
     <div class="header">
         <h1 id="main-title">📅 실시간 오늘의 시간표</h1>
-        <p>앱 UI 카드 그리드 디자인 적용 완료✨</p>
+        <p>앱 UI 카드 그리드 디자인 / 긴 과목명 최적화 완료✨</p>
         
         <div class="controls">
             <select id="class-selector" onchange="filterClass()">
@@ -270,7 +263,7 @@
                     <option value="14">3학년 5반</option>
                 </optgroup>
             </select>
-            <input type="text" id="teacher-search" placeholder="검색" onkeyup="searchTeacher()">
+            <input type="text" id="teacher-search" placeholder="선생님 이름 검색 (예: 임승언)" onkeyup="searchTeacher()">
         </div>
     </div>
 
@@ -299,12 +292,11 @@
             document.getElementById('main-title').innerText = `📅 ${month}월 ${date}일(${dayName}) 시간표`;
         }
 
-        // 파스텔 톤 카드 배경색 (홀/짝수 교시 구분)
         function getGradeColor(colIndex, periodNum) {
             const isEvenPeriod = periodNum % 2 === 0;
-            if (colIndex >= 1 && colIndex <= 4) return isEvenPeriod ? "#fef08a" : "#fef9c3"; // 1학년 노랑
-            if (colIndex >= 5 && colIndex <= 9) return isEvenPeriod ? "#bbf7d0" : "#dcfce3"; // 2학년 초록
-            if (colIndex >= 10 && colIndex <= 14) return isEvenPeriod ? "#bfdbfe" : "#dbeafe"; // 3학년 파랑
+            if (colIndex >= 1 && colIndex <= 4) return isEvenPeriod ? "#fef08a" : "#fef9c3"; 
+            if (colIndex >= 5 && colIndex <= 9) return isEvenPeriod ? "#bbf7d0" : "#dcfce3"; 
+            if (colIndex >= 10 && colIndex <= 14) return isEvenPeriod ? "#bfdbfe" : "#dbeafe"; 
             return "#ffffff";
         }
 
@@ -346,7 +338,6 @@
             for (let rowIndex = 1; rowIndex < globalTimetableData.length; rowIndex++) {
                 let row1 = globalTimetableData[rowIndex].slice(0, 15); 
                 
-                // --- 1. 헤더 영역 (학년, 반) ---
                 if (rowIndex === 1) {
                     headHtml += "<tr>";
                     headHtml += `<th rowspan="2" class="time-cell-header">교시</th>`;
@@ -383,15 +374,12 @@
                     continue;
                 }
 
-                // --- 2. 바디 영역 (본문 시간표) ---
                 let rowStr = row1.join(" ").trim();
                 if (rowStr === "") continue;
 
-                // 점심시간 처리 (가로로 길게 병합된 하나의 카드)
                 if (rowStr.includes("점심")) {
                      bodyHtml += `<tr class="lunch-row period-0">`;
                      bodyHtml += `<td class="time-cell">점심</td>`;
-                     // 점심 텍스트 추출
                      let lunchText = "점심시간 12:20 ~ 13:20";
                      for(let i=1; i<15; i++) {
                          if(row1[i] && row1[i].trim() !== "") {
@@ -407,23 +395,18 @@
 
                 let row1PeriodText = row1[0] ? row1[0].trim() : "";
                 
-                // 독립적인 교시 번호 추출
                 let match = row1PeriodText.match(/\d+/);
                 if (match) currentPeriod = parseInt(match[0], 10);
 
-                // 만약 현재 행에 교시 텍스트가 없다면(순수 선생님 행만 남은 경우), 건너뜀 (이미 이전 턴에 합쳐서 그렸으므로)
                 if (row1PeriodText === "" && currentPeriod !== 0) continue;
 
-                // 과목과 짝을 이룰 다음 행(선생님 행) 탐색
                 let nextRow = (rowIndex + 1 < globalTimetableData.length) ? globalTimetableData[rowIndex + 1].slice(0, 15) : Array(15).fill("");
                 let nextRowPeriodText = nextRow[0] ? nextRow[0].trim() : "";
                 
-                // 다음 줄의 첫 번째 칸이 비어있다면 선생님 정보가 들어있는 행으로 간주
                 let hasTeacherRow = (nextRowPeriodText === "" && nextRow.join("").trim() !== "");
                 
                 let pColor = getPeriodColor(currentPeriod);
                 
-                // ★ 카드형태로 과목과 선생님 정보를 하나의 <td>로 합침 ★
                 bodyHtml += `<tr class="period-${currentPeriod}">`;
                 bodyHtml += `<td class="time-cell" style="background-color: ${pColor}">${row1PeriodText.replace(/\n/g, "<br>")}</td>`;
 
@@ -444,7 +427,6 @@
                 }
                 bodyHtml += "</tr>";
 
-                // 선생님 행 데이터는 현재 카드로 흡수했으므로 다음 순서 건너뜀
                 if (hasTeacherRow) rowIndex++; 
             }
 
@@ -452,7 +434,6 @@
             tbody.innerHTML = bodyHtml;
         }
 
-        // --- 필터 (학년별, 반별 보기) ---
         function filterClass() {
             const selectedVal = document.getElementById('class-selector').value;
             const table = document.getElementById('timetable');
@@ -474,7 +455,6 @@
                     visibleCols = [parseInt(selectedVal)]; 
                 }
 
-                // 헤더 병합(colspan) 조정
                 const gradeHeaders = document.querySelectorAll('.grade-header');
                 gradeHeaders.forEach(th => {
                     const start = parseInt(th.getAttribute('data-start'));
@@ -493,7 +473,6 @@
                     }
                 });
 
-                // 열 숨김 처리
                 allCells.forEach(cell => {
                     if(cell.classList.contains('lunch-content')) {
                         cell.setAttribute('colspan', visibleCols.length); 
@@ -517,7 +496,6 @@
             }
         }
 
-        // --- 선생님 이름 검색 (통합된 카드 기반으로 수정됨) ---
         function searchTeacher() {
             const keyword = document.getElementById('teacher-search').value.trim();
             const cardCells = document.querySelectorAll('.card-cell');
@@ -534,7 +512,6 @@
             });
         }
 
-        // --- 현재 교시 실시간 깜빡임 ---
         function checkCurrentPeriod() {
             const now = new Date();
             const h = now.getHours();
